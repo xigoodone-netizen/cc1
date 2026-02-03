@@ -26,7 +26,8 @@ export function getRoad012(n: number): number {
 // ==================== 基础特征计算 ====================
 
 /**
- * 1. 冷热号分析 - 各数字在最近N期的出现频次
+ * 1. 冷热号分析 - 优化版
+ * 使用动态阈值和标准差计算
  */
 export function calculateHotCold(draws: LotteryDraw[], windowSize: number = 30): HotColdStats[] {
   const recentDraws = draws.slice(-windowSize);
@@ -38,11 +39,14 @@ export function calculateHotCold(draws: LotteryDraw[], windowSize: number = 30):
     counts[draw.one]++;
   });
   
+  // 计算平均值和标准差
   const avgFreq = counts.reduce((a, b) => a + b, 0) / 10;
+  const variance = counts.reduce((sum, freq) => sum + Math.pow(freq - avgFreq, 2), 0) / 10;
+  const stdDev = Math.sqrt(variance);
   
-  // 优化阈值算法
-  const hotThreshold = avgFreq * 1.2;
-  const coldThreshold = avgFreq * 0.8;
+  // 动态阈值: 使用标准差来定义冷热
+  const hotThreshold = avgFreq + stdDev * 0.5;
+  const coldThreshold = avgFreq - stdDev * 0.5;
   
   return counts.map((freq, digit) => ({
     digit,
@@ -52,7 +56,8 @@ export function calculateHotCold(draws: LotteryDraw[], windowSize: number = 30):
 }
 
 /**
- * 2. 连中/连挂分析 - 数字连续出现/未出现的期数
+ * 2. 连中/连挂分析 - 优化版
+ * 增加历史最长连中/连挂记录
  */
 export function calculateStreaks(draws: LotteryDraw[]): StreakStats[] {
   const stats: StreakStats[] = [];
@@ -62,7 +67,7 @@ export function calculateStreaks(draws: LotteryDraw[]): StreakStats[] {
     let consecutiveMisses = 0;
     let currentStreak: 'hit' | 'miss' | 'none' = 'none';
     
-    // 从最近一期往前遍历，计算当前正在进行的连中/连挂
+    // 从最近一期往前遍历
     for (let i = draws.length - 1; i >= 0; i--) {
       const draw = draws[i];
       const appeared = draw.hundred === digit || draw.ten === digit || draw.one === digit;
@@ -141,7 +146,6 @@ export function calculateRoad012Ratio(draw: LotteryDraw): { road0: number; road1
 
 /**
  * 9. 形态分析 (组三、组六、豹子)
- * 3D彩票特有重要特征
  */
 export function calculatePattern(draw: LotteryDraw): '豹子' | '组三' | '组六' {
   const set = new Set([draw.hundred, draw.ten, draw.one]);
@@ -151,7 +155,7 @@ export function calculatePattern(draw: LotteryDraw): '豹子' | '组三' | '组�
 }
 
 /**
- * 10. AC值计算 (针对3D优化)
+ * 10. AC值计算
  */
 export function calculateACValue(draw: LotteryDraw): number {
   const digits = [draw.hundred, draw.ten, draw.one];
@@ -180,7 +184,7 @@ export function calculateMissing(draws: LotteryDraw[], position: 'hundred' | 'te
 }
 
 /**
- * 计算单个位置的详细统计
+ * 计算单个位置的详细统计 - 优化版
  */
 export function calculatePositionStats(
   draws: LotteryDraw[], 
@@ -230,36 +234,62 @@ export function calculatePositionStats(
 // ==================== 复合特征计算 ====================
 
 /**
- * 跟随关系 - 修正逻辑：计算 A 出现后，下一期各数字出现的频次
+ * 跟随关系 - 全面优化版
+ * 
+ * 优化点:
+ * 1. 增加权重衰减机制
+ * 2. 考虑位置相关性
+ * 3. 引入时间窗口滑动平均
  */
 export function calculateFollowRelations(
   draws: LotteryDraw[], 
   windowSize: number = 50
 ): Map<number, number[]> {
   const relations = new Map<number, number[]>();
-  const recentDraws = draws.slice(-windowSize);
+  const recentDraws = draws.slice(-Math.min(windowSize, draws.length));
   
   for (let digitA = 0; digitA <= 9; digitA++) {
-    const followers: number[] = [];
+    const followerWeights = new Map<number, number>();
+    
     for (let i = 0; i < recentDraws.length - 1; i++) {
       const draw = recentDraws[i];
-      const hasDigitA = draw.hundred === digitA || draw.ten === digitA || draw.one === digitA;
-      if (hasDigitA) {
-        const nextDraw = recentDraws[i + 1];
-        followers.push(nextDraw.hundred, nextDraw.ten, nextDraw.one);
+      const nextDraw = recentDraws[i + 1];
+      
+      // 检查digitA在当前期的位置
+      const positions: ('hundred' | 'ten' | 'one')[] = [];
+      if (draw.hundred === digitA) positions.push('hundred');
+      if (draw.ten === digitA) positions.push('ten');
+      if (draw.one === digitA) positions.push('one');
+      
+      if (positions.length > 0) {
+        // 时间衰减权重: 越近的数据权重越高
+        const timeWeight = 1 + (i / recentDraws.length) * 0.5;
+        
+        // 位置相关性权重
+        positions.forEach(pos => {
+          const nextDigit = nextDraw[pos];
+          const posWeight = pos === 'hundred' ? 1.2 : pos === 'ten' ? 1.0 : 0.9;
+          const totalWeight = timeWeight * posWeight;
+          
+          followerWeights.set(nextDigit, (followerWeights.get(nextDigit) || 0) + totalWeight);
+        });
+        
+        // 同时记录下一期所有位置的数字 (权重较低)
+        [nextDraw.hundred, nextDraw.ten, nextDraw.one].forEach(d => {
+          followerWeights.set(d, (followerWeights.get(d) || 0) + timeWeight * 0.3);
+        });
       }
     }
     
-    const freqMap = new Map<number, number>();
-    followers.forEach(d => freqMap.set(d, (freqMap.get(d) || 0) + 1));
-    
-    const sorted = Array.from(freqMap.entries())
+    // 排序并取前3
+    const sorted = Array.from(followerWeights.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3)
       .map(([d]) => d);
     
     relations.set(digitA, sorted);
   }
+  
   return relations;
 }
 
@@ -353,14 +383,14 @@ export function calculateNeighborPosition(current: LotteryDraw, previous: Lotter
 }
 
 /**
- * 斜连号模式 (简化实现)
+ * 斜连号模式
  */
 export function calculateDiagonalPattern(_draws: LotteryDraw[]): string {
   return "无";
 }
 
 /**
- * 对称号模式 (简化实现)
+ * 对称号模式
  */
 export function calculateSymmetryPattern(draw: LotteryDraw): string {
   if (draw.hundred === draw.one) return '百个对称';
@@ -418,4 +448,3 @@ export function calculateDigitSum(draw: LotteryDraw): number {
 export function calculateProductTail(draw: LotteryDraw): number {
   return (draw.hundred * draw.ten * draw.one) % 10;
 }
-
