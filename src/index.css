@@ -1,0 +1,209 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 4%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 6%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 4% 20%;
+    --input: 240 4% 20%;
+    --ring: 217 91% 60%;
+    --radius: 0.625rem;
+    --sidebar-background: 240 6% 10%;
+    --sidebar-foreground: 240 5% 96%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 4% 16%;
+    --sidebar-accent-foreground: 240 5% 96%;
+    --sidebar-border: 240 4% 20%;
+    --sidebar-ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-[#0a0a0f] text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  /* 自定义滚动条 */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #1f2937;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+  }
+  
+  /* 数字字体 */
+  .font-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  
+  /* 卡片悬停效果 */
+  .card-hover {
+    @apply transition-all duration-300;
+  }
+  
+  .card-hover:hover {
+    @apply -translate-y-1;
+    box-shadow: 0 10px 40px rgba(59, 130, 246, 0.1);
+  }
+  
+  /* 渐变文字 */
+  .gradient-text {
+    @apply bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent;
+  }
+  
+  /* 玻璃态效果 */
+  .glass {
+    @apply bg-gray-900/80 backdrop-blur-md;
+  }
+  
+  /* 发光边框 */
+  .glow-border {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+  }
+  
+  /* 动画 */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+    }
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+  
+  /* 数字球 */
+  .digit-ball {
+    @apply inline-flex items-center justify-center w-10 h-10 rounded-full font-mono text-xl font-bold;
+  }
+  
+  .digit-ball-blue {
+    @apply digit-ball bg-blue-500/20 text-blue-400;
+  }
+  
+  .digit-ball-green {
+    @apply digit-ball bg-green-500/20 text-green-400;
+  }
+  
+  .digit-ball-amber {
+    @apply digit-ball bg-amber-500/20 text-amber-400;
+  }
+  
+  .digit-ball-red {
+    @apply digit-ball bg-red-500/20 text-red-400;
+  }
+  
+  /* 状态标签 */
+  .status-hot {
+    @apply bg-red-500/20 text-red-400 border-red-500/30;
+  }
+  
+  .status-warm {
+    @apply bg-yellow-500/20 text-yellow-400 border-yellow-500/30;
+  }
+  
+  .status-cold {
+    @apply bg-blue-500/20 text-blue-400 border-blue-500/30;
+  }
+  
+  /* 图表提示框 */
+  .recharts-tooltip-wrapper {
+    outline: none !important;
+  }
+  
+  /* 滑块样式 */
+  [data-slot="slider-track"] {
+    @apply bg-gray-700;
+  }
+  
+  [data-slot="slider-range"] {
+    @apply bg-blue-500;
+  }
+  
+  [data-slot="slider-thumb"] {
+    @apply bg-blue-500 border-2 border-white;
+  }
+  
+  /* 进度条样式 */
+  [data-slot="progress-indicator"] {
+    @apply bg-gradient-to-r from-blue-500 to-purple-500;
+  }
+}
+
+@layer utilities {
+  /* 文字截断 */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  /* 隐藏滚动条但保持滚动 */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
