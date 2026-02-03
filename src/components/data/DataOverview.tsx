@@ -5,6 +5,7 @@ import type { StatisticsSummary } from '@/types/lottery';
 interface DataOverviewProps {
   stats: StatisticsSummary;
   latestPeriod?: string;
+  hideHeader?: boolean;
 }
 
 export function DataOverview({ stats, latestPeriod }: DataOverviewProps) {
@@ -19,7 +20,7 @@ export function DataOverview({ stats, latestPeriod }: DataOverviewProps) {
     {
       icon: TrendingUp,
       label: '最新期号',
-      value: latestPeriod || '-',
+      value: latestPeriod ? latestPeriod.slice(-6) : '-',
       color: 'from-green-500 to-green-700',
       iconColor: 'text-green-400'
     },
@@ -44,18 +45,18 @@ export function DataOverview({ stats, latestPeriod }: DataOverviewProps) {
       {items.map((item, index) => (
         <Card
           key={index}
-          className="bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700 hover:border-gray-600 transition-all duration-300 hover:-translate-y-1"
+          className="bg-gray-900/50 border-white/5 hover:border-white/10 transition-all duration-300"
         >
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm mb-1">{item.label}</p>
-                <p className="text-3xl font-bold text-white font-mono">
+                <p className="text-gray-500 text-[10px] uppercase font-bold mb-1">{item.label}</p>
+                <p className="text-xl font-bold text-white font-mono">
                   {item.value}
                 </p>
               </div>
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}>
-                <item.icon className={`w-6 h-6 text-white`} />
+              <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${item.color} flex items-center justify-center opacity-80`}>
+                <item.icon className={`w-4 h-4 text-white`} />
               </div>
             </div>
           </CardContent>
