@@ -160,12 +160,12 @@ function App() {
 
         .row-layered {
           border: 1px solid transparent;
-          border-radius: 16px;
+          border-radius: 12px;
           transition: all 0.2s ease;
         }
         .row-layered:hover {
           transform: translateX(4px);
-          box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
           border-color: #e2e8f0;
           background: white !important;
         }
@@ -183,21 +183,47 @@ function App() {
         .hit-badge {
           background: #10b981;
           color: white;
-          padding: 2px 8px;
-          border-radius: 6px;
-          font-size: 10px;
+          padding: 1px 6px;
+          border-radius: 4px;
+          font-size: 9px;
           font-weight: 900;
-          box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
         }
 
         .miss-badge {
           background: #ef4444;
           color: white;
-          padding: 2px 8px;
-          border-radius: 6px;
-          font-size: 10px;
+          padding: 1px 6px;
+          border-radius: 4px;
+          font-size: 9px;
           font-weight: 900;
-          box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+        }
+
+        .total-status-hit {
+          background: #10b981;
+          color: white;
+          padding: 4px 12px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 900;
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .total-status-miss {
+          background: #ef4444;
+          color: white;
+          padding: 4px 12px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 900;
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .label-large {
+          font-size: 14px;
+          font-weight: 900;
+          color: #475569;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
         }
       `}</style>
 
@@ -302,21 +328,21 @@ function App() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column: Data Stream */}
           <div className="lg:col-span-4 space-y-8">
-            <div className="neo-card p-8 h-[800px] flex flex-col">
-              <div className="flex items-center justify-between mb-8">
+            <div className="neo-card p-6 h-[800px] flex flex-col">
+              <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <Database className="w-5 h-5 text-indigo-600" />
                   <h2 className="text-lg font-black text-slate-800">实时采集流</h2>
                 </div>
                 <span className="text-[10px] bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full font-black animate-pulse">LIVE</span>
               </div>
-              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-3">
+              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-2">
                 {draws.slice().reverse().slice(0, 50).map((draw, idx) => (
-                  <div key={draw.id} className={`row-layered p-4 flex items-center justify-between ${idx % 2 === 0 ? 'row-even' : 'row-odd'}`}>
-                    <span className="mono text-xs font-bold text-slate-400">{formatPeriod(draw.period)}</span>
-                    <div className="flex gap-2">
+                  <div key={draw.id} className={`row-layered p-3 flex items-center justify-between ${idx % 2 === 0 ? 'row-even' : 'row-odd'}`}>
+                    <span className="mono text-[11px] font-bold text-slate-400">{formatPeriod(draw.period)}</span>
+                    <div className="flex gap-1.5">
                       {[draw.hundred, draw.ten, draw.one].map((n, i) => (
-                        <span key={i} className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-lg shadow-indigo-600/20">
+                        <span key={i} className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-black text-xs shadow-md">
                           {n}
                         </span>
                       ))}
@@ -329,66 +355,73 @@ function App() {
 
           {/* Right Column: Validation */}
           <div className="lg:col-span-8 space-y-8">
-            <div className="neo-card p-8 h-[800px] flex flex-col">
-              <div className="flex items-center justify-between mb-8">
+            <div className="neo-card p-6 h-[800px] flex flex-col">
+              <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <CheckCircle2 className="w-5 h-5 text-indigo-600" />
                   <h2 className="text-lg font-black text-slate-800">实时命中验证流水</h2>
                 </div>
                 <div className="flex gap-2">
-                  <div className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-black">HIT: {stats.overallAccuracy}%</div>
+                  <div className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-black uppercase">HIT RATE: {stats.overallAccuracy}%</div>
                 </div>
               </div>
               
-              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-3">
-                {validations.slice().reverse().map((v, idx) => (
-                  <div key={v.id} className={`row-layered p-4 flex flex-col gap-4 ${idx % 2 === 0 ? 'row-even' : 'row-odd'}`}>
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                      <span className="mono text-xs font-bold text-slate-400">{formatPeriod(v.period)}</span>
-                      <span className="text-[9px] font-black text-indigo-500 uppercase tracking-wider">验证通过</span>
-                    </div>
-                    
-                    <div className="grid grid-cols-4 gap-4 items-center">
-                      <div className="flex flex-col items-center">
-                        <span className="text-[9px] font-extrabold text-slate-400 uppercase mb-2">实际开奖</span>
-                        <div className="flex gap-1">
-                          {[v.actualHundred, v.actualTen, v.actualOne].map((n, i) => (
-                            <span key={i} className="w-8 h-8 rounded-lg bg-slate-800 text-white flex items-center justify-center font-black text-xs">
-                              {n}
-                            </span>
-                          ))}
+              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-2">
+                {validations.slice().reverse().slice(0, 50).map((v, idx) => {
+                  const isAnyHit = v.hundredHit || v.tenHit || v.oneHit;
+                  return (
+                    <div key={v.id} className={`row-layered p-3 flex flex-col gap-2 ${idx % 2 === 0 ? 'row-even' : 'row-odd'}`}>
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                        <div className="flex items-center gap-4">
+                          <span className="mono text-[11px] font-bold text-slate-400">{formatPeriod(v.period)}</span>
+                          <span className="label-large text-indigo-500">验证通过</span>
+                        </div>
+                        <div className={isAnyHit ? "total-status-hit" : "total-status-miss"}>
+                          {isAnyHit ? "中" : "挂"}
                         </div>
                       </div>
-
-                      {/* Position Analysis */}
-                      {['百位', '十位', '个位'].map((label, i) => {
-                        const predicted = i === 0 ? v.prediction.hundredRanking : i === 1 ? v.prediction.tenRanking : v.prediction.oneRanking;
-                        const actual = i === 0 ? v.actualHundred : i === 1 ? v.actualTen : v.actualOne;
-                        const isHit = predicted.slice(0, 3).includes(actual);
-                        
-                        return (
-                          <div key={label} className="flex flex-col items-center">
-                            <span className="text-[9px] font-extrabold text-slate-400 uppercase mb-2">{label}预测</span>
-                            <div className="flex items-center gap-2">
-                              <div className="flex gap-0.5">
-                                {predicted.slice(0, 3).map((n, idx) => (
-                                  <span key={idx} className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-[10px] border ${n === actual ? 'bg-red-500 text-white border-red-500' : 'bg-white text-slate-600 border-slate-200'}`}>
-                                    {n}
-                                  </span>
-                                ))}
-                              </div>
-                              {isHit ? (
-                                <span className="hit-badge">中</span>
-                              ) : (
-                                <span className="miss-badge">挂</span>
-                              )}
-                            </div>
+                      
+                      <div className="grid grid-cols-4 gap-2 items-center">
+                        <div className="flex flex-col items-center">
+                          <span className="label-large mb-1.5">实际开奖</span>
+                          <div className="flex gap-1">
+                            {[v.actualHundred, v.actualTen, v.actualOne].map((n, i) => (
+                              <span key={i} className="w-7 h-7 rounded-lg bg-slate-800 text-white flex items-center justify-center font-black text-xs">
+                                {n}
+                              </span>
+                            ))}
                           </div>
-                        );
-                      })}
+                        </div>
+
+                        {['百位', '十位', '个位'].map((label, i) => {
+                          const predicted = i === 0 ? v.prediction.hundredRanking : i === 1 ? v.prediction.tenRanking : v.prediction.oneRanking;
+                          const actual = i === 0 ? v.actualHundred : i === 1 ? v.actualTen : v.actualOne;
+                          const isHit = predicted.slice(0, 3).includes(actual);
+                          
+                          return (
+                            <div key={label} className="flex flex-col items-center">
+                              <span className="label-large mb-1.5">{label}预测</span>
+                              <div className="flex items-center gap-1.5">
+                                <div className="flex gap-0.5">
+                                  {predicted.slice(0, 3).map((n, idx) => (
+                                    <span key={idx} className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-[10px] border ${n === actual ? 'bg-red-500 text-white border-red-500' : 'bg-white text-slate-600 border-slate-200'}`}>
+                                      {n}
+                                    </span>
+                                  ))}
+                                </div>
+                                {isHit ? (
+                                  <span className="hit-badge">中</span>
+                                ) : (
+                                  <span className="miss-badge">挂</span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
