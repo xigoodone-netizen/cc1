@@ -14,6 +14,7 @@ export function useLotteryData() {
   const [predictions, setPredictions] = useState<PredictionResult[]>([]);
   const [validations, setValidations] = useState<ValidationRecord[]>([]);
   const [windowSize, setWindowSize] = useState<number>(30);
+  const [predictionCount, setPredictionCount] = useState<number>(3);
   const [currentPrediction, setCurrentPrediction] = useState<PredictionResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -77,6 +78,7 @@ export function useLotteryData() {
         if (data.predictions) setPredictions(data.predictions);
         if (data.validations) setValidations(data.validations);
         if (data.windowSize) setWindowSize(data.windowSize);
+        if (data.predictionCount) setPredictionCount(data.predictionCount);
       } catch (e) {
         console.error('Failed to load data:', e);
       }
@@ -85,9 +87,9 @@ export function useLotteryData() {
 
   // 自动保存
   useEffect(() => {
-    const data = { draws, predictions, validations, windowSize };
+    const data = { draws, predictions, validations, windowSize, predictionCount };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [draws, predictions, validations, windowSize]);
+  }, [draws, predictions, validations, windowSize, predictionCount]);
 
   // 批量验证逻辑
   useEffect(() => {
@@ -102,7 +104,7 @@ export function useLotteryData() {
       // 寻找匹配的预测
       const matchingPrediction = predictions.find(p => p.period === draw.period);
       if (matchingPrediction) {
-        const result = validatePrediction(matchingPrediction, draw);
+        const result = validatePrediction(matchingPrediction, draw, predictionCount);
         newValidations.push({
           id: `${draw.period}_${Date.now()}_${Math.random()}`,
           period: draw.period,
@@ -133,7 +135,7 @@ export function useLotteryData() {
     if (newValidations.length > 0) {
       setValidations(prev => [...prev, ...newValidations].sort((a, b) => a.period.localeCompare(b.period)).slice(-200));
     }
-  }, [draws, predictions, validations]);
+  }, [draws, predictions, validations, predictionCount]);
 
   // 自动预测逻辑
   useEffect(() => {
@@ -217,11 +219,11 @@ export function useLotteryData() {
       maxStreak: 0,
       recentAccuracy: validations.slice(-20).map(v => (v.hundredHit || v.tenHit || v.oneHit ? 100 : 0))
     };
-  }, [draws, predictions, validations]);
+  }, [draws, predictions, validations, predictionCount]);
 
   return {
-    draws, predictions, validations, windowSize, currentPrediction, isLoading, isSyncing,
-    syncRemoteData, setWindowSize, importData, addDraw, generateNewPrediction, getStatistics,
+    draws, predictions, validations, windowSize, predictionCount, currentPrediction, isLoading, isSyncing,
+    syncRemoteData, setWindowSize, setPredictionCount, importData, addDraw, generateNewPrediction, getStatistics,
     clearData: () => { if(confirm('清空？')) { setDraws([]); setPredictions([]); setValidations([]); } },
     deleteDraw: (id: string) => setDraws(prev => prev.filter(d => d.id !== id)),
     generateSampleData: () => {

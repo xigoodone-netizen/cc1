@@ -35,8 +35,10 @@ function App() {
     draws,
     validations,
     windowSize,
+    predictionCount,
     currentPrediction,
     setWindowSize,
+    setPredictionCount,
     clearData,
     getStatistics,
     generateSampleData,
@@ -278,6 +280,13 @@ function App() {
                 </div>
                 <Slider value={[windowSize]} onValueChange={(v) => setWindowSize(v[0])} min={10} max={200} step={10} className="py-4" />
               </div>
+              <div className="space-y-6">
+                <div className="flex justify-between items-end">
+                  <span className="font-extrabold text-slate-500 uppercase text-xs tracking-widest">预测数字数量</span>
+                  <span className="font-black text-indigo-600 mono text-2xl">{predictionCount} <span className="text-sm">个</span></span>
+                </div>
+                <Slider value={[predictionCount]} onValueChange={(v) => setPredictionCount(v[0])} min={1} max={10} step={1} className="py-4" />
+              </div>
               <div className="flex items-end gap-6">
                 <Button variant="outline" onClick={generateSampleData} className="flex-1 rounded-2xl font-black h-12 border-2">生成模拟数据</Button>
                 <Button variant="destructive" onClick={clearData} className="flex-1 rounded-2xl font-black h-12 bg-red-500 shadow-lg shadow-red-500/20">重置默认权重</Button>
@@ -301,10 +310,10 @@ function App() {
                   <div key={pos} className="dark-panel flex-col items-start gap-4">
                     <div className="flex justify-between w-full items-center">
                       <span className="text-xs font-black text-indigo-400 uppercase tracking-widest">{pos}推荐</span>
-                      <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded-md font-bold">TOP 3</span>
+                      <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded-md font-bold">TOP {predictionCount}</span>
                     </div>
                     <div className="flex items-end gap-6 w-full justify-center py-2">
-                      {data.slice(0, 3).map((d, idx) => (
+                      {data.slice(0, predictionCount).map((d, idx) => (
                         <div key={idx} className="flex flex-col items-center">
                           <span className="prediction-digit-all mono">{d.digit}</span>
                           <span className="text-[10px] text-slate-500 font-bold mt-1">{d.probability}%</span>
@@ -396,14 +405,14 @@ function App() {
                         {['百位', '十位', '个位'].map((label, i) => {
                           const predicted = i === 0 ? v.prediction.hundredRanking : i === 1 ? v.prediction.tenRanking : v.prediction.oneRanking;
                           const actual = i === 0 ? v.actualHundred : i === 1 ? v.actualTen : v.actualOne;
-                          const isHit = predicted.slice(0, 3).includes(actual);
+                          const isHit = predicted.slice(0, predictionCount).includes(actual);
                           
                           return (
                             <div key={label} className="flex flex-col items-center">
                               <span className="label-large mb-1.5">{label}预测</span>
                               <div className="flex items-center gap-1.5">
                                 <div className="flex gap-0.5">
-                                  {predicted.slice(0, 3).map((n, idx) => (
+                                  {predicted.slice(0, predictionCount).map((n, idx) => (
                                     <span key={idx} className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-[10px] border ${n === actual ? 'bg-red-500 text-white border-red-500' : 'bg-white text-slate-600 border-slate-200'}`}>
                                       {n}
                                     </span>

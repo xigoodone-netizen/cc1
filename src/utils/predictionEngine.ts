@@ -470,15 +470,15 @@ function generateNextPeriod(current: string): string {
 /**
  * 验证预测结果
  */
-export function validatePrediction(prediction: PredictionResult, actual: LotteryDraw) {
+export function validatePrediction(prediction: PredictionResult, actual: LotteryDraw, count: number = 3) {
   const hRank = prediction.hundred.findIndex(d => d.digit === actual.hundred) + 1;
   const tRank = prediction.ten.findIndex(d => d.digit === actual.ten) + 1;
   const oRank = prediction.one.findIndex(d => d.digit === actual.one) + 1;
 
   return {
-    hundredHit: hRank <= 3,
-    tenHit: tRank <= 3,
-    oneHit: oRank <= 3,
+    hundredHit: hRank <= count,
+    tenHit: tRank <= count,
+    oneHit: oRank <= count,
     hundredRank: hRank,
     tenRank: tRank,
     oneRank: oRank

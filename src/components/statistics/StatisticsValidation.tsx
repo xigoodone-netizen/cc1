@@ -9,9 +9,10 @@ import type { StatisticsSummary, ValidationRecord } from '@/types/lottery';
 interface StatisticsValidationProps {
   stats: StatisticsSummary;
   validations: ValidationRecord[];
+  predictionCount: number;
 }
 
-export function StatisticsValidation({ stats, validations }: StatisticsValidationProps) {
+export function StatisticsValidation({ stats, validations, predictionCount }: StatisticsValidationProps) {
   const accuracyData = useMemo(() => {
     return [
       { name: '百位', accuracy: stats.hundredAccuracy, color: '#3b82f6' },
@@ -233,17 +234,17 @@ export function StatisticsValidation({ stats, validations }: StatisticsValidatio
                       <td className="p-2 text-gray-300">{v.period}</td>
                       <td className="p-2 text-center">
                         <span className="text-blue-400 font-mono">
-                          {v.prediction.hundredRanking.slice(0, 3).join(', ')}
+                          {v.prediction.hundredRanking.slice(0, predictionCount).join(', ')}
                         </span>
                       </td>
                       <td className="p-2 text-center">
                         <span className="text-green-400 font-mono">
-                          {v.prediction.tenRanking.slice(0, 3).join(', ')}
+                          {v.prediction.tenRanking.slice(0, predictionCount).join(', ')}
                         </span>
                       </td>
                       <td className="p-2 text-center">
                         <span className="text-amber-400 font-mono">
-                          {v.prediction.oneRanking.slice(0, 3).join(', ')}
+                          {v.prediction.oneRanking.slice(0, predictionCount).join(', ')}
                         </span>
                       </td>
                       <td className="p-2 text-center">
